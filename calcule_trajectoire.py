@@ -32,29 +32,67 @@ def simulation(piste_angle:int,hauteur_de_depart:float, plot:bool):
     calcule la vitesse de la voiture en fonction des données donné, calcule effectué toutes les 0.001s
     """
 
-    
+
     '''Coordonnées des points de la trajectoire'''
-    pisteY = [hauteur_de_depart+0.1, 0.1]
-    pisteX = [0, (pisteY[0] - 0.1) / math.sin(math.radians(piste_angle))]   #simule que la piste est plate 
-   
-    # angle_piste = 40 # °
 
-    '''diametre du looping en mètre'''
-    diametre_looping = 0.23
-    '''perimetre du looping en mètre'''
-    perimetre = 0.23*math.pi
-    '''simulle que le looping est plat, d'une longueur du permimetre du looping'''
+    '''si l'angle de la piste est a 0, alors on utilise les données du cas réel'''
+    if piste_angle == 0:
+        use_real_data = True
+
+        '''hauteur de départ du ravin en mètre'''
+        hauteur_de_depart = 1 # hauteur du ravin utilisé pour la hauteur de départ
+        largeur_ravin = 9 # m
+        
+        '''diametre du looping en mètre'''
+        diametre_looping = 12
+        '''perimetre du looping en mètre'''
+        perimetre = diametre_looping*math.pi
+
+        pisteY = [hauteur_de_depart, hauteur_de_depart]
+        pisteX = [0, 31]
+
+        '''        point d'entré  section debut    ,     looping          , section fin / point de sortie '''
+        loopingX = [pisteX[1],  pisteX[1] +(diametre_looping/2), pisteX[1] + perimetre, pisteX[1] + perimetre + (diametre_looping/2)]
+        true_loopingX = [pisteX[1], pisteX[1] + diametre_looping/2, pisteX[1] + diametre_looping]
+        loopingY = [pisteY[1], pisteY[1], pisteY[1], pisteY[1]]
 
 
-    '''        point d'entré  section debut    ,     looping          , section fin / point de sortie '''
-    loopingX = [pisteX[1],  pisteX[1] +(0.23/2), pisteX[1] + perimetre, pisteX[1] + perimetre + (0.23/2)]
-    true_loopingX = [pisteX[1], pisteX[1] + 0.23/2, pisteX[1] + 0.23]
-    loopingY = [0.1, 0.1, 0.1, 0.1]
+        '''coordonnées du saut en Y et en X'''
+        sautX = [true_loopingX[2] + largeur_ravin, true_loopingX[2] + largeur_ravin + 5]
+        sautY = [0, 0]
+
+    else:
+        use_real_data = False
+
+        '''hauteur de départ du ravin en mètre'''
+        largeur_ravin = 0.7 # m
+        
+        '''diametre du looping en mètre'''
+        diametre_looping = 0.23
+        '''perimetre du looping en mètre'''
+        perimetre = diametre_looping*math.pi
+    
+        pisteY = [hauteur_de_depart+0.1, 0.1]
+        pisteX = [0, (pisteY[0] - 0.1) / math.sin(math.radians(piste_angle))]   #simule que la piste est plate 
+    
+        # angle_piste = 40 # °
+
+        '''diametre du looping en mètre'''
+        diametre_looping = 0.23
+        '''perimetre du looping en mètre'''
+        perimetre = 0.23*math.pi
+        '''simulle que le looping est plat, d'une longueur du permimetre du looping'''
 
 
-    '''coordonnées du saut en Y et en X'''
-    sautX = [loopingX[3] + 0.7, loopingX[3] + 2.7]
-    sautY = [0, 0]
+        '''        point d'entré  section debut    ,     looping          , section fin / point de sortie '''
+        loopingX = [pisteX[1],  pisteX[1] +(diametre_looping/2), pisteX[1] + perimetre, pisteX[1] + perimetre + (diametre_looping/2)]
+        true_loopingX = [pisteX[1], pisteX[1] + diametre_looping/2, pisteX[1] + diametre_looping]
+        loopingY = [pisteY[1], pisteY[1], pisteY[1], pisteY[1]]
+
+
+        '''coordonnées du saut en Y et en X'''
+        sautX = [loopingX[3] + largeur_ravin, loopingX[3] + largeur_ravin + 2]
+        sautY = [0, 0]
 
 
 
@@ -65,26 +103,48 @@ def simulation(piste_angle:int,hauteur_de_depart:float, plot:bool):
 
     print('--------------------\nSimulation en cours...\n |')
     '''------------------------initialisation des variables------------------------'''
-    '''initialisation des variables de la voiture'''
-    voiture = {'X': pisteX[0], 'Y': pisteY[0], 'vitesse': 0}
-    '''initialisation des variables de la simulation'''
-    dt = 0.001 # s
-
-    '''coefficient de trainée de l'air'''
-    Cx = 0.04
-    Cx_ravin = 0.001
-
-    '''coefficient de frottement de la route'''
-    Ur = 0.002
-
-    '''surface de la voiture'''
-    surface = 3.12**-4 # m²
 
     '''constante gravitationnelle'''
     g = 9.81 # m/s²
 
-    '''poid de la voiture'''
-    poid = 0.093 * g # N
+    if use_real_data:
+        '''initialisation des variables de la voiture'''
+        voiture = {'X': pisteX[0], 'Y': pisteY[0], 'vitesse': 0}
+        '''initialisation des variables de la simulation'''
+        dt = 0.001 # s  
+
+        '''coefficient de trainée de l'air'''
+        Cx = 0.3  # (0.04 pour la version miniature, 0.3 pour la version réelle)
+        Cx_ravin = 0.3 # (0.001 pour la version miniature, 0.3 pour la version réelle)
+
+        '''coefficient de frottement de la route'''
+        Ur = 0.01 # (0.002 pour la version miniature, 0.01 pour la version réelle)
+
+        '''surface de la voiture'''
+        surface = 1.94*1.35 # m² (3.12**-4 pour la version miniature, 1.94*1.35 m² pour la version réelle)
+
+        '''poid de la voiture'''
+        poid = 1760 * g # N (0.093 pour la version miniature, 1760 kg pour la version réelle)
+
+    else:
+        '''initialisation des variables de la voiture'''
+        voiture = {'X': pisteX[0], 'Y': pisteY[0], 'vitesse': 0}
+        '''initialisation des variables de la simulation'''
+        dt = 0.001 # s
+
+        '''coefficient de trainée de l'air'''
+        Cx = 0.04  # (0.04 pour la version miniature, 0.3 pour la version réelle)
+        Cx_ravin = 0.001 # (0.001 pour la version miniature, 0.3 pour la version réelle)
+
+        '''coefficient de frottement de la route'''
+        Ur = 0.002 # (0.002 pour la version miniature, 0.01 pour la version réelle)
+
+        '''surface de la voiture'''
+        surface = 3.12**-4 # m² (3.12**-4 pour la version miniature, 1.94*1.35 m² pour la version réelle)
+
+        '''poid de la voiture'''
+        poid = 0.093 * g # N (0.093 pour la version miniature, 1760 kg pour la version réelle)
+        
 
     '''densité de l'air au niveau de la mer'''
     air_density = get_air_density(0)
@@ -108,7 +168,10 @@ def simulation(piste_angle:int,hauteur_de_depart:float, plot:bool):
         voiture['Y'] = (1 - voiture['X'] / pisteX[1]) * (pisteY[0]-pisteY[1]) + pisteY[1]
 
         '''calcule vitesse formule pente'''
-        a_constant = math.sin(math.radians(piste_angle)) * g  # m/s²
+        if use_real_data :
+            a_constant = 8
+        else:
+            a_constant = math.sin(math.radians(piste_angle)) * g  # m/s²
 
         '''calcul de la force de frottement de l'air'''
         air_drag = (1/2 * air_density * surface * Cx * (voiture['vitesse']**2))/poid  # m/s²
@@ -196,7 +259,7 @@ def simulation(piste_angle:int,hauteur_de_depart:float, plot:bool):
 
         '''calcule de l'accélération du a la gravité (alpha change de 0 a -360 pour simuler la courbe du looping)'''
         alpha_R = math.radians(alpha)  # rad
-        a_g = poid * math.sin(alpha_R)  # m/s²
+        a_g = g * math.sin(alpha_R)  # m/s²
 
         '''calcule de la position X et Y en fonciton de alpha_R'''
         voiture['Y'] = (1-math.sin(alpha_R + math.radians(90))) * diametre_looping/2 + loopingY[1]
@@ -275,7 +338,7 @@ def simulation(piste_angle:int,hauteur_de_depart:float, plot:bool):
 
     on_ground = False
 
-    voiture['Y'] = 0.1
+    voiture['Y'] = loopingY[3]
     Vy = 0
 
     '''utilisation d'un Cx plus faible (Cx_ravin)'''
@@ -311,7 +374,7 @@ def simulation(piste_angle:int,hauteur_de_depart:float, plot:bool):
             if voiture['Y'] <= 0:
                 crash = True
                 '''affichage de la position x de la voiture lorsqu'elle s'est crashée'''
-                print(f' |  |-> la voiture s\'est crashée, elle a atteint Y=0 a X = {voiture["X"]-loopingX[3]:.4f} m (la route est a X = {sautX[0]-loopingX[3]:.4f} m)')
+                print(f' |  |-> la voiture s\'est crashée, elle a atteint Y=0 a X = {voiture["X"]-true_loopingX[2]:.4f} m (la route est a X = {sautX[0]-loopingX[3]:.4f} m)')
                 print(f' |\n |->simulation annulée pour cause d\'un crash de la voiture')
             
 
@@ -437,33 +500,6 @@ def simulation(piste_angle:int,hauteur_de_depart:float, plot:bool):
 
 
 
-def find_angle():
-    is_crashed = True
-
-    hauteur_depart_min = int(0.9 *10) # m (entier seulement !!)
-    hauteur_depart_max = int(3 *10) # m (entier seulement !!)
-
-    angle_min = 40 # °
-    angle_max = 89 # °
-
-    '''simulation avec des angles de plus en plus grand pour trouver a partir du quel la voiture ne se crash pas'''
-    for hauteur_depart in range(hauteur_depart_min, hauteur_depart_max):
-
-        for angle_piste in range(angle_min, angle_max+1):
-            print(f'\nsimulation avec un angle de {angle_piste}° et une hauteur de départ de {hauteur_depart/10 +0.1}m (dela hauteur de la pente) \n')
-            is_crashed = simulation(
-                piste_angle=angle_piste, hauteur_de_depart=hauteur_depart/10, plot=False)
-
-            if is_crashed:
-                angle_piste += 1
-            else:
-                print(f'\n---la voiture ne se crash pas avec un angle de {angle_piste}° et une hauteur de départ de {hauteur_depart/10}m (dela hauteur de la pente)---\n')
-                simulation(piste_angle=angle_piste, hauteur_de_depart=hauteur_depart/10, plot=True)
-                return
-    
-        print(f'\nla voiture se crash peut importe l\'ange')
-
 if __name__ == "__main__":
-    # find_angle()
-    simulation(piste_angle=40, hauteur_de_depart=0.93, plot=True)
+    simulation(piste_angle=40, hauteur_de_depart=0.93, plot=True) # (angle de la piste a 40° et hauteur de depart a 0.93m pour la version miniature, 0° et 0m pour la version réelle)
 
