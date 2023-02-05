@@ -83,8 +83,8 @@ def simulation(piste_angle:int,hauteur_de_depart:float, plot:bool):
     '''constante gravitationnelle'''
     g = 9.81 # m/s²
 
-    '''masse de la voiture'''
-    masse = 0.093 * g # N
+    '''poid de la voiture'''
+    poid = 0.093 * g # N
 
     '''densité de l'air au niveau de la mer'''
     air_density = get_air_density(0)
@@ -111,7 +111,7 @@ def simulation(piste_angle:int,hauteur_de_depart:float, plot:bool):
         a_constant = math.sin(math.radians(piste_angle)) * g  # m/s²
 
         '''calcul de la force de frottement de l'air'''
-        air_drag = (1/2 * air_density * surface * Cx * (voiture['vitesse']**2))/masse  # m/s²
+        air_drag = (1/2 * air_density * surface * Cx * (voiture['vitesse']**2))/poid  # m/s²
         
         '''calcul de la force de frottement de la route'''
         road_drag = g * Ur  # m/s²
@@ -153,7 +153,7 @@ def simulation(piste_angle:int,hauteur_de_depart:float, plot:bool):
     while voiture['X'] <= true_loopingX[1] and not crash:
 
         '''calcule de la trainée de l'air'''
-        air_drag = (1/2 * air_density * surface * Cx * (voiture['vitesse']**2))/masse  # m/s²
+        air_drag = (1/2 * air_density * surface * Cx * (voiture['vitesse']**2))/poid  # m/s²
 
         '''calcule des forces de frottement de la route'''
         road_drag = g * Ur  # m/s²
@@ -196,15 +196,15 @@ def simulation(piste_angle:int,hauteur_de_depart:float, plot:bool):
 
         '''calcule de l'accélération du a la gravité (alpha change de 0 a -360 pour simuler la courbe du looping)'''
         alpha_R = math.radians(alpha)  # rad
-        a_g = masse * math.sin(alpha_R)  # m/s²
+        a_g = poid * math.sin(alpha_R)  # m/s²
 
         '''calcule de la position X et Y en fonciton de alpha_R'''
         voiture['Y'] = (1-math.sin(alpha_R + math.radians(90))) * diametre_looping/2 + loopingY[1]
-        position_X = (math.cos(alpha_R - math.radians(90))) * diametre_looping/2 + true_loopingX[1]
+        position_X = (-math.cos(alpha_R - math.radians(90))) * diametre_looping/2 + true_loopingX[1]
 
         '''calcule des forces de frottement de la route'''
         road_drag = g * Ur  # m/s²
-        air_drag = (1/2 * air_density * surface * Cx * (voiture['vitesse']**2))/masse  # m/s²
+        air_drag = (1/2 * air_density * surface * Cx * (voiture['vitesse']**2))/poid  # m/s²
 
         '''calcule de l'accélération'''
         a = a_g -(air_drag + road_drag)  # m/s²
@@ -234,7 +234,7 @@ def simulation(piste_angle:int,hauteur_de_depart:float, plot:bool):
     while voiture['X'] <= true_loopingX[2] and not crash:
 
         '''calcule de la trainée de l'air'''
-        air_drag = (1/2 * air_density * surface * Cx * (voiture['vitesse']**2))/masse  # m/s²
+        air_drag = (1/2 * air_density * surface * Cx * (voiture['vitesse']**2))/poid  # m/s²
 
         '''calcule de la trainée de la route'''
         road_drag = g * Ur  # m/s²
@@ -317,7 +317,7 @@ def simulation(piste_angle:int,hauteur_de_depart:float, plot:bool):
 
            
         '''calcule de la trainée de l'air'''
-        air_drag = (1/2 * air_density * surface * Cx_ravin * (voiture['vitesse']**2))/masse  # m/s²
+        air_drag = (1/2 * air_density * surface * Cx_ravin * (voiture['vitesse']**2))/poid  # m/s²
 
         '''calcule de la deceleration du aux forces de frottement de la route et de l'air'''
         ax = - (air_drag + road_drag)  # m/s²
@@ -357,7 +357,7 @@ def simulation(piste_angle:int,hauteur_de_depart:float, plot:bool):
 
         ''' graphe de la vitesse ou de la position en fonction du temps (sur demande de l'utilisateur)'''
         if input_ == 'vitesse':
-            figure.suptitle(f"Simulation de la voiture, vitesse en fonction du temps (masse = {masse/g:.3f}kg, surface = {surface:.3f}m², Cx = {Cx}, Cx_ravin = {Cx_ravin:.3f}, Ur = {Ur}, angle de la piste = {piste_angle}°, hauteur de départ = {hauteur_de_depart}m (dela hauteur de la pente))\n(Axes X en s, Axes Y en m/s)")
+            figure.suptitle(f"Simulation de la voiture, vitesse en fonction du temps (poid = {poid/g:.3f}kg, surface = {surface:.3f}m², Cx = {Cx}, Cx_ravin = {Cx_ravin:.3f}, Ur = {Ur}, angle de la piste = {piste_angle}°, hauteur de départ = {hauteur_de_depart}m (dela hauteur de la pente))\n(Axes X en s, Axes Y en m/s)")
 
             '''graphes de la vitesse sur le plan incliné en fonction du temps'''
             axis[0, 0].plot(LOG_temps_piste, LOG_vitesse_piste, 'b')
@@ -390,16 +390,21 @@ def simulation(piste_angle:int,hauteur_de_depart:float, plot:bool):
 
         elif input_ == 'position':
 
-            figure.suptitle(f"Simulation de la voiture, Y en fonction de X (masse = {masse/g:.3f}kg, surface = {surface:.3f}m², Cx = {Cx}, Cx_ravin = {Cx_ravin:.3f}, Ur = {Ur}, angle de la piste = {piste_angle}°, hauteur de départ = {hauteur_de_depart}m (dela hauteur de la pente))\n(Axes X en m, Axes Y en m)")
+            figure.suptitle(f"Simulation de la voiture, Y en fonction de X (poid = {poid/g:.3f}kg, surface = {surface:.3f}m², Cx = {Cx}, Cx_ravin = {Cx_ravin:.3f}, Ur = {Ur}, angle de la piste = {piste_angle}°, hauteur de départ = {hauteur_de_depart}m (dela hauteur de la pente))\n(Axes X en m, Axes Y en m)")
 
             '''graphes de la position Y sur le plan incliné en fonction de X'''
             axis[0, 0].plot(LOG_positionX_piste, LOG_positionY_piste, 'b')
             axis[0, 0].axis('equal')
             axis[0, 0].set_title("Position en Y de la voiture sur le plan incliné en fonction de la position X")
 
-            '''graphes de la position Y sur le looping (parties plates avant et après) en fonction de X'''            
-            axis[0, 1].plot(LOG_positionX_looping, LOG_positionY_looping, 'b')
-            axis[0, 1].plot(LOG_positionX_looping[T_entrée_looping:T_sortie_looping], LOG_positionY_looping[T_entrée_looping:T_sortie_looping], 'r')
+            '''graphes de la position Y sur le looping (parties plates avant et après) en fonction de X''' 
+            interval = 5          
+            axis[0, 1].plot(LOG_positionX_looping[0:T_entrée_looping+1:interval], LOG_positionY_looping[0:T_entrée_looping+1:interval], 'b+')
+            axis[0, 1].plot(LOG_positionX_looping[T_sortie_looping::interval], LOG_positionY_looping[T_sortie_looping::interval], 'b+')
+            '''graphe de la position Y en fonction de la position X dans le looping, prise en compte que d'une donnée sur 3'''
+            axis[0, 1].plot(LOG_positionX_looping[T_entrée_looping:T_sortie_looping+1:interval], LOG_positionY_looping[T_entrée_looping:T_sortie_looping+1:interval], 'r+')
+            # axis[0, 1].plot(LOG_positionX_looping[T_entrée_looping:T_sortie_looping], LOG_positionY_looping[T_entrée_looping:T_sortie_looping], 'r+')
+
             axis[0, 1].axis('equal')
             axis[0, 1].set_title("Position en Y de la voiture sur le looping (partie rouge = looping)")
 
